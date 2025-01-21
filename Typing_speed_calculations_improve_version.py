@@ -17,6 +17,23 @@ def find_mistake(par_test, user_test):
     return errors
 
 
+def show_mistakes(par_test, user_test):
+    """
+    Function to highlight mistakes in the user's input.
+    Shows mismatched or missing characters.
+    """
+    result = []  # List to store the output with highlights
+    for i in range(len(par_test)):
+        try:
+            if par_test[i] == user_test[i]:
+                result.append(par_test[i])  # Correct characters
+            else:
+                result.append(f"[{user_test[i]}]")  # Highlight incorrect characters
+        except IndexError:  # Missing characters from user input
+            result.append("_")  # Use underscore for missing characters
+    return ''.join(result)  # Convert list to string
+
+
 def calculate_speed(start_time, end_time, user_input):
     """
     Calculate typing speed in words per minute (WPM).
@@ -31,11 +48,6 @@ def typing_test():
     """
     Main function to run the typing speed test.
     """
-    # Display welcome message
-    print("=" * 40)
-    print("Welcome to the Online Typing Speed Test")
-    print("=" * 40)
-
     # Difficulty levels
     levels = {
         "1": "Easy",
@@ -96,16 +108,25 @@ def typing_test():
     print(f"Accuracy      : {accuracy}%")
     print("=" * 40)
 
+    # Show where mistakes were made
+    print("\nHighlighting Mistakes:")
+    print("Correct Text: ", test_text)
+    print("Your Input  : ", show_mistakes(test_text, user_input))
+
     # Provide feedback
     if speed > 60 and accuracy > 90:
-        print("Excellent typing skills! Keep it up!")
+        print("\nExcellent typing skills! Keep it up!")
     elif speed > 40:
-        print("Good typing speed, but you can improve further.")
+        print("\nGood typing speed, but you can improve further.")
     else:
-        print("Keep practicing to improve your typing skills!")
+        print("\nKeep practicing to improve your typing skills!")
 
 
 if __name__ == "__main__":
+    # Display welcome message
+    print("=" * 40)
+    print("Welcome to the Online Typing Speed Test")
+    print("=" * 40)
     while True:
         choice = input("\nDo you want to take the test again? (yes/no): ").strip().lower()
         if choice == "yes":
@@ -114,4 +135,4 @@ if __name__ == "__main__":
             print("\nThank you for using the Typing Speed Test. Goodbye!")
             break
         else:
-            print("\nPlease press either 'yes' or 'no' ")
+            print("\nPlease press either 'yes' or 'no'")
