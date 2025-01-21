@@ -5,33 +5,41 @@ import random
 def find_mistake(par_test, user_test):
     """
     Function to find mistakes between the test text and user input.
-    Counts character mismatches and missing characters.
+    Counts word mismatches and missing words.
     """
+    par_words = par_test.split()  # Split test text into words
+    user_words = user_test.split()  # Split user input into words
     errors = 0
-    for i in range(len(par_test)):
+    max_length = max(len(par_words), len(user_words))
+
+    for i in range(max_length):
         try:
-            if par_test[i] != user_test[i]:
+            if par_words[i] != user_words[i]:
                 errors += 1
-        except IndexError:  # User input shorter than the test text
+        except IndexError:  # Handle missing words
             errors += 1
     return errors
 
-# TODO improve hobe ei section for better visualizations
+
 def show_mistakes(par_test, user_test):
     """
-    Function to highlight mistakes in the user's input.
-    Shows mismatched or missing characters.
+    Function to highlight mistakes in the user's input, word by word.
+    Highlights incorrect or extra words and indicates missing words.
     """
-    result = []  # List to store the output with highlights
-    for i in range(len(par_test)):
+    par_words = par_test.split()  # Split test text into words
+    user_words = user_test.split()  # Split user input into words
+    highlighted_output = []
+
+    for i in range(max(len(par_words), len(user_words))):
         try:
-            if par_test[i] == user_test[i]:
-                result.append(par_test[i])  # Correct characters
-            else:
-                result.append(f"[{user_test[i]}]")  # Highlight incorrect characters
-        except IndexError:  # Missing characters from user input
-            result.append("_")  # Use underscore for missing characters
-    return ''.join(result)  # Convert list to string
+            if par_words[i] == user_words[i]:  # Correct word
+                highlighted_output.append(par_words[i])
+            else:  # Incorrect word
+                highlighted_output.append(f"[{user_words[i]}]")
+        except IndexError:  # Missing word from user input
+            highlighted_output.append(f"_{par_words[i]}_")
+
+    return ' '.join(highlighted_output)  # Convert list to string
 
 
 def calculate_speed(start_time, end_time, user_input):
@@ -98,7 +106,7 @@ def typing_test():
     # Calculate results
     speed = calculate_speed(start_time, end_time, user_input)
     mistakes = find_mistake(test_text, user_input)
-    accuracy = round(((len(test_text) - mistakes) / len(test_text)) * 100, 2)
+    accuracy = round(((len(test_text.split()) - mistakes) / len(test_text.split())) * 100, 2)
 
     # Display results
     print("\nTyping Test Results")
@@ -110,8 +118,10 @@ def typing_test():
 
     # Show where mistakes were made
     print("\nHighlighting Mistakes:")
+    print("=" * 40)
     print("Correct Text: ", test_text)
     print("Your Input  : ", show_mistakes(test_text, user_input))
+    print("=" * 40)
 
     # Provide feedback
     if speed > 60 and accuracy > 90:
