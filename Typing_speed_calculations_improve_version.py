@@ -2,44 +2,48 @@ import time
 import random
 
 
-def find_mistake(par_test, user_test):
+def highlight_mistakes(par_test, user_test):
     """
-    Function to find mistakes between the test text and user input.
-    Counts word mismatches and missing words.
+    Highlight mistakes in the user's input character by character within each word.
     """
-    par_words = par_test.split()  # Split test text into words
-    user_words = user_test.split()  # Split user input into words
-    errors = 0
-    max_length = max(len(par_words), len(user_words))
-
-    for i in range(max_length):
-        try:
-            if par_words[i] != user_words[i]:
-                errors += 1
-        except IndexError:  # Handle missing words
-            errors += 1
-    return errors
-
-
-def show_mistakes(par_test, user_test):
-    """
-    Function to highlight mistakes in the user's input, word by word.
-    Highlights incorrect or extra words and indicates missing words.
-    """
-    par_words = par_test.split()  # Split test text into words
-    user_words = user_test.split()  # Split user input into words
+    par_words = par_test.split()
+    user_words = user_test.split()
     highlighted_output = []
+    total_errors = 0
+    missing_words = 0
+    extra_characters = 0
 
     for i in range(max(len(par_words), len(user_words))):
         try:
-            if par_words[i] == user_words[i]:  # Correct word
-                highlighted_output.append(par_words[i])
-            else:  # Incorrect word
-                highlighted_output.append(f"[{user_words[i]}]")
-        except IndexError:  # Missing word from user input
-            highlighted_output.append(f"_{par_words[i]}_")
+            # Compare words
+            par_word = par_words[i]
+            user_word = user_words[i]
+            highlighted_word = []
 
-    return ' '.join(highlighted_output)  # Convert list to string
+            # Compare characters within words
+            for j in range(max(len(par_word), len(user_word))):
+                try:
+                    if par_word[j] == user_word[j]:
+                        highlighted_word.append(par_word[j])
+                    else:
+                        highlighted_word.append(f"[{user_word[j]}]")  # Incorrect character
+                        total_errors += 1
+                except IndexError:
+                    # User word is shorter
+                    highlighted_word.append(f"_[{par_word[j]}]_")  # Missing character
+                    total_errors += 1
+            highlighted_output.append("".join(highlighted_word))
+        except IndexError:
+            # Handle missing words
+            highlighted_output.append(f"_[{par_words[i]}]_")
+            missing_words += 1
+
+    # Handle extra words
+    if len(user_words) > len(par_words):
+        extra_characters += sum(len(word) for word in user_words[len(par_words):])
+        highlighted_output.extend([f"[{word}]" for word in user_words[len(par_words):]])
+
+    return " ".join(highlighted_output), total_errors, missing_words, extra_characters
 
 
 def calculate_speed(start_time, end_time, user_input):
@@ -47,7 +51,7 @@ def calculate_speed(start_time, end_time, user_input):
     Calculate typing speed in words per minute (WPM).
     """
     time_taken = end_time - start_time
-    words = len(user_input.split())  # Count words typed by the user
+    words = len(user_input.split())
     speed = (words / time_taken) * 60  # Words per minute
     return round(speed, 2)
 
@@ -105,23 +109,27 @@ def typing_test():
 
     # Calculate results
     speed = calculate_speed(start_time, end_time, user_input)
-    mistakes = find_mistake(test_text, user_input)
-    accuracy = round(((len(test_text.split()) - mistakes) / len(test_text.split())) * 100, 2)
+    highlighted_result, total_errors, missing_words, extra_chars = highlight_mistakes(test_text, user_input)
+    accuracy = round(((len(test_text) - total_errors) / len(test_text)) * 100, 2)
 
     # Display results
     print("\nTyping Test Results")
     print("=" * 40)
     print(f"Typing Speed  : {speed} words per minute")
-    print(f"Errors Made   : {mistakes}")
+    print(f"Errors Made   : {total_errors}")
     print(f"Accuracy      : {accuracy}%")
     print("=" * 40)
 
-    # Show where mistakes were made
+    # Show detailed error breakdown
+    print("\nError Breakdown:")
+    print(f"- Missing words     : {missing_words}")
+    print(f"- Extra characters  : {extra_chars}")
+    print(f"- Total character-level errors : {total_errors}")
+
+    # Highlight mistakes
     print("\nHighlighting Mistakes:")
-    print("=" * 40)
     print("Correct Text: ", test_text)
-    print("Your Input  : ", show_mistakes(test_text, user_input))
-    print("=" * 40)
+    print("Your Input  : ", highlighted_result)
 
     # Provide feedback
     if speed > 60 and accuracy > 90:
