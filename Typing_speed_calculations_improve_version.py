@@ -16,7 +16,7 @@ def find_mistake(par_test, user_test):
             errors += 1
     return errors
 
-
+# TODO improve hobe ei section for better visualizations
 def show_mistakes(par_test, user_test):
     """
     Function to highlight mistakes in the user's input.
